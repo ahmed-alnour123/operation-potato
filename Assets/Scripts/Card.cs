@@ -1,23 +1,24 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Card : MonoBehaviour {
-    RectTransform rectTransform;
-    Image image;
+    public RectTransform cardView;
+    public Image backImage;
+    public TMP_Text cardText;
     Button button;
 
     public bool isShowingFace = false;
     public float cardFlipTime = 0.3f;
-    public char data;
+    public char letter;
+    public Sprite backImageSprite;
 
     public bool canFlip = true;
     bool didChangSprite = false;
 
     private void Awake() {
-        rectTransform = GetComponent<RectTransform>();
-        image = GetComponent<Image>();
-        button = GetComponent<Button>();
+        button = cardView.GetComponent<Button>();
     }
 
     private void Start() {
@@ -38,21 +39,23 @@ public class Card : MonoBehaviour {
         isShowingFace = !isShowingFace;
         float time = cardFlipTime;
         didChangSprite = false;
+        cardText.rectTransform.rotation = Quaternion.Euler(0, isShowingFace ? 0 : 180, 0);
 
         while (time > 0) {
-            float t = 1 - (time / cardFlipTime);
-            rectTransform.rotation = Quaternion.Euler(0, t * 180, 0);
+            float t = (time / cardFlipTime);
+            cardView.rotation = Quaternion.Euler(0, t * 180, 0);
 
-            if (t > 0.5f && !didChangSprite) {
+            if (t < 0.5f && !didChangSprite) {
                 didChangSprite = true;
-                image.color = isShowingFace ? Color.red : Color.white;
+                backImage.sprite = isShowingFace ? null : backImageSprite;
+                cardText.enabled = isShowingFace;
             }
 
             yield return null;
             time -= Time.deltaTime;
         }
 
-        rectTransform.rotation = Quaternion.Euler(0, 0, 0);
+        cardView.rotation = Quaternion.Euler(0, 0, 0);
 
         canFlip = true;
     }
@@ -68,6 +71,7 @@ public class Card : MonoBehaviour {
 
     public void DestroyCard() {
         // TODO: Play VFX
-        Destroy(gameObject, 1f);
+        Invoke(nameof(StopAllCoroutines), 1);
+        Destroy(cardView.gameObject, 1f);
     }
 }
