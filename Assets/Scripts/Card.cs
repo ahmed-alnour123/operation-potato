@@ -7,12 +7,12 @@ public class Card : MonoBehaviour {
     Image image;
     Button button;
 
-    public bool showingFace = true;
+    public bool isShowingFace = false;
     public float cardFlipTime = 0.3f;
+    public char data;
 
-    bool isFlipping = false;
-    bool changedSprite = false;
-
+    public bool canFlip = true;
+    bool didChangSprite = false;
 
     private void Awake() {
         rectTransform = GetComponent<RectTransform>();
@@ -24,36 +24,50 @@ public class Card : MonoBehaviour {
         button.onClick.AddListener(OnCardClicked);
     }
 
-    IEnumerator Flip() {
-        isFlipping = true;
+    public void Flip(float delay = 0) {
+        StartCoroutine(FlipRoutine(delay));
+    }
 
+    private IEnumerator FlipRoutine(float delay) {
+        canFlip = false;
+
+        if (delay > 0) {
+            yield return new WaitForSeconds(delay);
+        }
+
+        isShowingFace = !isShowingFace;
         float time = cardFlipTime;
-        changedSprite = false;
+        didChangSprite = false;
 
         while (time > 0) {
             float t = 1 - (time / cardFlipTime);
             rectTransform.rotation = Quaternion.Euler(0, t * 180, 0);
 
-            if (t > 0.5f && !changedSprite) {
-                changedSprite = true;
-                image.color = showingFace ? Color.red : Color.white;
+            if (t > 0.5f && !didChangSprite) {
+                didChangSprite = true;
+                image.color = isShowingFace ? Color.red : Color.white;
             }
 
-            yield return new WaitForEndOfFrame();
+            yield return null;
             time -= Time.deltaTime;
         }
 
         rectTransform.rotation = Quaternion.Euler(0, 0, 0);
 
-        isFlipping = false;
+        canFlip = true;
     }
 
     private void OnCardClicked() {
-        if (isFlipping) {
+        if (!canFlip) {
             return;
         }
 
-        showingFace = !showingFace;
-        StartCoroutine(Flip());
+        Flip();
+        GameManager.Instance.OnCardClicked(this, isShowingFace);
+    }
+
+    public void DestroyCard() {
+        // TODO: Play VFX
+        Destroy(gameObject, 1f);
     }
 }
