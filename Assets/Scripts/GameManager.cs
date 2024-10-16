@@ -19,6 +19,10 @@ public class GameManager : MonoBehaviour {
     public int columns = 3;
 
     // game state
+    int flips = 0;
+    int matches = 0;
+    int score = 0;
+    int combo = 0;
     Card firstCard;
     Card secondCard;
 
@@ -42,12 +46,17 @@ public class GameManager : MonoBehaviour {
             throw new System.Exception($"one of the cards [{firstCard}, {secondCard}] is null, this shouldn't happen");
         }
 
+        flips++;
         if (firstCard.letter == secondCard.letter) {
-            // TODO: calculate score and combo
+            matches++;
+            combo++;
+            score += (1 << (combo - 1));
+
             firstCard.DestroyCard();
             secondCard.DestroyCard();
         } else {
-            // TODO: increase misses, and reset combo
+            combo = 0;
+
             firstCard.Flip(flipDelayTime);
             secondCard.Flip(flipDelayTime);
         }
