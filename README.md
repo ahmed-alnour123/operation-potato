@@ -1,3 +1,10 @@
+the game was developed using Unity 2021.3.30f1 LTS version
+
+there is a built APK at releases section to try the game:
+https://github.com/ahmed-alnour123/operation-potato/releases/latest
+
+---
+
 **Game Features:**
 
 - **Smooth Gameplay with Continuous Card Flipping:** Click as fast as you want—the game responds seamlessly, whether you're holding down or rapidly tapping.
