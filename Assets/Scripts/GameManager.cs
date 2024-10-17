@@ -82,10 +82,7 @@ public class GameManager : MonoBehaviour {
         firstCard = null;
         secondCard = null;
 
-        uiManager.UpdateStat(StatType.Score, score);
-        uiManager.UpdateStat(StatType.Combo, combo);
-        uiManager.UpdateStat(StatType.Turns, turns);
-        uiManager.UpdateStat(StatType.Matches, matches);
+        UpdateUIStat();
     }
 
     void EndGame() {
@@ -111,6 +108,8 @@ public class GameManager : MonoBehaviour {
                 newCard.cardView = null;
             }
         }
+
+        UpdateUIStat();
     }
 
     public void OnCardClicked(Card card, bool isShowingFace) {
@@ -166,5 +165,12 @@ public class GameManager : MonoBehaviour {
             Card card = grid.transform.GetChild(i).GetComponent<Card>();
             card.Flip();
         }
+    }
+
+    void UpdateUIStat() {
+        uiManager.UpdateStat(StatType.Score, score);
+        uiManager.UpdateStat(StatType.Combo, combo);
+        uiManager.UpdateStat(StatType.Turns, turns);
+        uiManager.UpdateStat(StatType.Matches, matches);
     }
 }
