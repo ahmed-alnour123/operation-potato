@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour {
 
     // game parameters
     public float flipDelayTime = 2f;
+    public float peekTimeout = 2f;
     public int rows = 3;
     public int columns = 3;
 
@@ -44,11 +45,13 @@ public class GameManager : MonoBehaviour {
 
     public void ContinueLastGame() {
         saveManager.LoadGameData();
+        Invoke(nameof(FlipAllCards), peekTimeout);
     }
 
     public void StartNewGame() {
         SetupGrid();
         SetupCards();
+        Invoke(nameof(FlipAllCards), peekTimeout);
     }
 
     void Update() {
@@ -154,6 +157,14 @@ public class GameManager : MonoBehaviour {
         Card newCard = Instantiate(cardPrefab, grid.transform);
         newCard.cardText.text = "" + letter;
         newCard.letter = letter;
+        newCard.canFlip = false;
         return newCard;
+    }
+
+    void FlipAllCards() {
+        for (int i = 0; i < grid.transform.childCount; i++) {
+            Card card = grid.transform.GetChild(i).GetComponent<Card>();
+            card.Flip();
+        }
     }
 }
