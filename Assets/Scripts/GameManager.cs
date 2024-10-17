@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class GameManager : MonoBehaviour {
     public static GameManager Instance;
@@ -12,6 +13,7 @@ public class GameManager : MonoBehaviour {
 
     // components
     public SoundManager soundManager;
+    public SaveManager saveManager;
     public GridLayoutGroup grid;
 
     // game parameters
@@ -20,11 +22,11 @@ public class GameManager : MonoBehaviour {
     public int columns = 3;
 
     // game state
-    int flips = 0;
-    int matches = 0;
-    int score = 0;
-    int combo = 0;
-    int pairsCount;
+    public int flips = 0;
+    public int matches = 0;
+    public int score = 0;
+    public int combo = 0;
+    public int pairsCount;
     Card firstCard;
     Card secondCard;
 
@@ -33,6 +35,18 @@ public class GameManager : MonoBehaviour {
     }
 
     void Start() {
+        if (saveManager.HasUnfinishedGame()) {
+            ContinueLastGame();
+        } else {
+            StartNewGame();
+        }
+    }
+
+    public void ContinueLastGame() {
+        saveManager.LoadGameData();
+    }
+
+    public void StartNewGame() {
         SetupGrid();
         SetupCards();
     }
@@ -58,7 +72,7 @@ public class GameManager : MonoBehaviour {
             secondCard.DestroyCard();
             soundManager.PlaySound(SoundEffect.Match);
 
-            if (matches == pairsCount){
+            if (matches == pairsCount) {
                 Invoke(nameof(EndGame), 1);
             }
         } else {
@@ -73,9 +87,27 @@ public class GameManager : MonoBehaviour {
         secondCard = null;
     }
 
-    void EndGame(){
+    void EndGame() {
         soundManager.PlaySound(SoundEffect.Endgame);
         // TODO: Show Endgame UI
+    }
+
+    public void LoadGame(string cards, string gameState) {
+        List<int> state = gameState.Split(";").Select(s => int.Parse(s)).ToList();
+
+        this.flips = state[0];
+        this.matches = state[1];
+        this.score = state[2];
+        this.combo = state[3];
+
+        SetupGrid();
+
+        foreach (char c in cards) {
+            var newCard = GenerateCard(c);
+            if (c == '.') {
+                Destroy(newCard.cardView.gameObject);
+            }
+        }
     }
 
     public void OnCardClicked(Card card, bool isShowingFace) {
@@ -107,21 +139,21 @@ public class GameManager : MonoBehaviour {
         pairsCount = Mathf.CeilToInt(rows * columns / 2f);
 
         for (int i = 0; i < pairsCount; i++) {
-            Card newCard1 = Instantiate(cardPrefab, grid.transform);
-            Card newCard2 = Instantiate(cardPrefab, grid.transform);
-
             char letter = (char)('a' + i);
-
-            newCard1.letter = letter;
-            newCard2.letter = letter;
-
-            newCard1.cardText.text = "" + letter;
-            newCard2.cardText.text = "" + letter;
+            GenerateCard(letter);
+            GenerateCard(letter);
         }
 
         for (int i = 0; i < grid.transform.childCount; i++) {
             Transform card = grid.transform.GetChild(i);
             card.SetSiblingIndex(Random.Range(0, grid.transform.childCount));
         }
+    }
+
+    Card GenerateCard(char letter) {
+        Card newCard = Instantiate(cardPrefab, grid.transform);
+        newCard.cardText.text = "" + letter;
+        newCard.letter = letter;
+        return newCard;
     }
 }
