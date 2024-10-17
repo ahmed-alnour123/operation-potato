@@ -26,6 +26,10 @@ public class Card : MonoBehaviour {
     }
 
     public void Flip(float delay = 0) {
+        if (cardView == null) {
+            return;
+        }
+
         StartCoroutine(FlipRoutine(delay));
     }
 

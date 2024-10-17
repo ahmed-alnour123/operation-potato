@@ -18,7 +18,7 @@ public class SaveManager : MonoBehaviour {
         }
 
         string gameState = "";
-        gameState += "" + gameManager.flips;
+        gameState += "" + gameManager.turns;
         gameState += ";" + gameManager.matches;
         gameState += ";" + gameManager.score;
         gameState += ";" + gameManager.combo;

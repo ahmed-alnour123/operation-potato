@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour {
     // components
     public SoundManager soundManager;
     public SaveManager saveManager;
+    public UIManager uiManager;
     public GridLayoutGroup grid;
 
     // game parameters
@@ -23,7 +24,7 @@ public class GameManager : MonoBehaviour {
     public int columns = 3;
 
     // game state
-    public int flips = 0;
+    public int turns = 0;
     public int matches = 0;
     public int score = 0;
     public int combo = 0;
@@ -35,17 +36,9 @@ public class GameManager : MonoBehaviour {
         Instance = this;
     }
 
-    void Start() {
-        if (saveManager.HasUnfinishedGame()) {
-            ContinueLastGame();
-        } else {
-            StartNewGame();
-        }
-    }
-
     public void ContinueLastGame() {
         saveManager.LoadGameData();
-        Invoke(nameof(FlipAllCards), peekTimeout);
+        FlipAllCards();
     }
 
     public void StartNewGame() {
@@ -65,7 +58,7 @@ public class GameManager : MonoBehaviour {
             throw new System.Exception($"one of the cards [{firstCard}, {secondCard}] is null, this shouldn't happen");
         }
 
-        flips++;
+        turns++;
         if (firstCard.letter == secondCard.letter) {
             matches++;
             combo++;
@@ -88,17 +81,23 @@ public class GameManager : MonoBehaviour {
 
         firstCard = null;
         secondCard = null;
+
+        uiManager.UpdateStat(StatType.Score, score);
+        uiManager.UpdateStat(StatType.Combo, combo);
+        uiManager.UpdateStat(StatType.Turns, turns);
+        uiManager.UpdateStat(StatType.Matches, matches);
     }
 
     void EndGame() {
         soundManager.PlaySound(SoundEffect.Endgame);
         // TODO: Show Endgame UI
+        uiManager.gameCleared.SetActive(true);
     }
 
     public void LoadGame(string cards, string gameState) {
         List<int> state = gameState.Split(";").Select(s => int.Parse(s)).ToList();
 
-        this.flips = state[0];
+        this.turns = state[0];
         this.matches = state[1];
         this.score = state[2];
         this.combo = state[3];
@@ -109,6 +108,7 @@ public class GameManager : MonoBehaviour {
             var newCard = GenerateCard(c);
             if (c == '.') {
                 Destroy(newCard.cardView.gameObject);
+                newCard.cardView = null;
             }
         }
     }
