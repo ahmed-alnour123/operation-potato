@@ -36,8 +36,11 @@ public class Card : MonoBehaviour {
     private IEnumerator FlipRoutine(float delay) {
         canFlip = false;
 
-        if (delay > 0) {
-            yield return new WaitForSeconds(delay);
+        while (delay > 0) {
+            // yield return new WaitForSeconds(delay);
+            canFlip = false;
+            yield return null;
+            delay -= Time.deltaTime;
         }
 
         isShowingFace = !isShowingFace;
