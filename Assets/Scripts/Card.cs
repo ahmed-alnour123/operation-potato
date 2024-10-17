@@ -40,6 +40,7 @@ public class Card : MonoBehaviour {
         float time = cardFlipTime;
         didChangSprite = false;
         cardText.rectTransform.rotation = Quaternion.Euler(0, isShowingFace ? 0 : 180, 0);
+        SoundManager.Instance.PlaySound(SoundEffect.CardFlip);
 
         while (time > 0) {
             float t = (time / cardFlipTime);

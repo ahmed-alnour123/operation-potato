@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour {
     public List<Sprite> sprites;
 
     // components
+    public SoundManager soundManager;
     public GridLayoutGroup grid;
 
     // game parameters
@@ -23,6 +24,7 @@ public class GameManager : MonoBehaviour {
     int matches = 0;
     int score = 0;
     int combo = 0;
+    int pairsCount;
     Card firstCard;
     Card secondCard;
 
@@ -54,15 +56,26 @@ public class GameManager : MonoBehaviour {
 
             firstCard.DestroyCard();
             secondCard.DestroyCard();
+            soundManager.PlaySound(SoundEffect.Match);
+
+            if (matches == pairsCount){
+                Invoke(nameof(EndGame), 1);
+            }
         } else {
             combo = 0;
 
             firstCard.Flip(flipDelayTime);
             secondCard.Flip(flipDelayTime);
+            soundManager.PlaySound(SoundEffect.Mismatch);
         }
 
         firstCard = null;
         secondCard = null;
+    }
+
+    void EndGame(){
+        soundManager.PlaySound(SoundEffect.Endgame);
+        // TODO: Show Endgame UI
     }
 
     public void OnCardClicked(Card card, bool isShowingFace) {
@@ -91,7 +104,7 @@ public class GameManager : MonoBehaviour {
     }
 
     void SetupCards() {
-        int pairsCount = Mathf.CeilToInt(rows * columns / 2f);
+        pairsCount = Mathf.CeilToInt(rows * columns / 2f);
 
         for (int i = 0; i < pairsCount; i++) {
             Card newCard1 = Instantiate(cardPrefab, grid.transform);
